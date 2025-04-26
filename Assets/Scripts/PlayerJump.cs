@@ -1,14 +1,23 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class BlackPlayerJump : MonoBehaviour
+public class PlayerJump : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D _playerBody;
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] Vector3 _setRotation;
 
+    Vector3 _intialRotation;
+
     private bool isFlipping = false;
     private Quaternion targetRotation;
 
+    private void Start()
+    {
+        _intialRotation = transform.rotation.eulerAngles;
+        print(_intialRotation);
+    }
     void Update()
     {
         if (isFlipping)
@@ -33,7 +42,7 @@ public class BlackPlayerJump : MonoBehaviour
         // Set Target Rotation based on new gravity
         if (_playerBody.gravityScale > 0)
         {
-            targetRotation = Quaternion.Euler(0f, 0f, 0f); // Normal
+            targetRotation = Quaternion.Euler(_intialRotation); // Normal
         }
         else
         {
