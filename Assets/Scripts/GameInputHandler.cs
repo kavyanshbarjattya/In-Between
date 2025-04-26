@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class GameInputHandler : MonoBehaviour
 {
-    [SerializeField] private PlayerGravityController blackPlayer;
-    [SerializeField] private PlayerGravityController whitePlayer;
+    [SerializeField] private PlayerJump blackPlayer;
+    [SerializeField] private PlayerJump whitePlayer;
 
     public void OnJumpButtonPressed()
     {
-        blackPlayer.GravityShift();
-        whitePlayer.GravityShift();
+        blackPlayer.Jump();
+        whitePlayer.Jump();
     }
 }

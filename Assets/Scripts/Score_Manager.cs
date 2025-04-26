@@ -19,5 +19,6 @@ public class Score_Manager : MonoBehaviour
         {
             return;
         }
+
     }
 }

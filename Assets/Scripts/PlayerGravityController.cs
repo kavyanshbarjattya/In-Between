@@ -4,58 +4,61 @@ public class PlayerGravityController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Rigidbody2D playerBody;
-    [SerializeField] private Animator playerAnimator; // optional for animation
+    [SerializeField] private Animator playerAnimator; // <-- NEW
 
-    [Header("Settings")]
-    [SerializeField] private float rotationDuration = 0.2f;
-    [SerializeField] private float normalRotationZ = 0f;    // Black Player -> 0
-    [SerializeField] private float flippedRotationZ = 180f; // White Player -> 180
+    [Header("Rotation Settings")]
+    [SerializeField] private float rotationSpeed = 360f; // Degrees per second
+    [SerializeField] private bool isStartingUpsideDown; // true for white player
 
-    private Quaternion targetRotation;
     private bool isRotating = false;
-    private float rotationTimer = 0f;
-    private float startRotationZ;
+    private float targetZRotation;
 
-    private void Update()
+    void Start()
+    {
+        if (isStartingUpsideDown)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 180);
+            playerBody.gravityScale = -Mathf.Abs(playerBody.gravityScale);
+        }
+        else
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            playerBody.gravityScale = Mathf.Abs(playerBody.gravityScale);
+        }
+    }
+
+    void Update()
     {
         if (isRotating)
         {
-            rotationTimer += Time.unscaledDeltaTime;
-            float t = rotationTimer / rotationDuration;
-            float zRotation = Mathf.LerpAngle(startRotationZ, targetRotation.eulerAngles.z, t);
-            transform.rotation = Quaternion.Euler(0, 0, zRotation);
+            float currentZ = transform.rotation.eulerAngles.z;
+            float newZ = Mathf.MoveTowardsAngle(currentZ, targetZRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0, 0, newZ);
 
-            if (t >= 1f)
+            if (Mathf.Abs(Mathf.DeltaAngle(newZ, targetZRotation)) < 0.1f)
             {
-                transform.rotation = targetRotation;
+                transform.rotation = Quaternion.Euler(0, 0, targetZRotation);
                 isRotating = false;
+                playerAnimator.SetBool("isRolling", false); // <-- Stop roll animation
             }
         }
     }
 
-    public void GravityShift()
+    public void FlipGravity()
     {
         // Flip gravity
         playerBody.gravityScale = -playerBody.gravityScale;
 
-        // Save current rotation
-        startRotationZ = transform.rotation.eulerAngles.z;
+        // Set target rotation
+        targetZRotation = (playerBody.gravityScale > 0) ? 0f : 180f;
 
-        // Decide target rotation based on gravity
-        if (playerBody.gravityScale > 0)
-        {
-            targetRotation = Quaternion.Euler(0, 0, normalRotationZ);
-        }
-        else
-        {
-            targetRotation = Quaternion.Euler(0, 0, flippedRotationZ);
-        }
-
-        rotationTimer = 0f;
+        // Start rotating
         isRotating = true;
 
-        // Optional animation
+        // Play roll animation
         if (playerAnimator != null)
-            playerAnimator.SetTrigger("Flip");
+        {
+            playerAnimator.SetBool("isRolling", true);
+        }
     }
 }

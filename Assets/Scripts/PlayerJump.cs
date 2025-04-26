@@ -16,7 +16,6 @@ public class PlayerJump : MonoBehaviour
     private void Start()
     {
         _intialRotation = transform.rotation.eulerAngles;
-        print(_intialRotation);
     }
     void Update()
     {
