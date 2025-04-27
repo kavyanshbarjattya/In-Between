@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -14,10 +12,6 @@ public class Score_Manager : MonoBehaviour
         {
             _score++;
             _scoreTxt.text = "Score: " + _score;
-        }
-        else
-        {
-            return;
         }
 
     }

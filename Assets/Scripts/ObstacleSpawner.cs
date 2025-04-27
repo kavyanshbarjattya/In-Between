@@ -2,17 +2,31 @@ using UnityEngine;
 
 public class ObstacleSpawner : MonoBehaviour
 {
+    [Header("Object Pool and Spawn Point")]
     [SerializeField] private ObjectPool objectPool;
-    [SerializeField] private Transform topLaneSpawnPoint;
-    [SerializeField] private Transform bottomLaneSpawnPoint;
-    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private bool isTopLane = true; // Is this spawner for Top Lane?
+
+    [Header("Spawn Settings")]
+    [SerializeField] private float initialSpawnInterval = 2f;
+    [SerializeField] private float minSpawnInterval = 0.8f;
+    [SerializeField] private float spawnIntervalDecreaseRate = 0.02f;
+
+    [Header("Obstacle Speed Settings")]
     [SerializeField] private float minSpeed = 3f;
     [SerializeField] private float maxSpeed = 7f;
-    [SerializeField] private float speedIncreaseRate = 0.05f; // How much speed increases over time
-    [SerializeField] private float minSpawnInterval = 0.8f;   // Minimum spawn time limit
-    [SerializeField] private float spawnIntervalDecreaseRate = 0.02f; // How fast spawn rate gets quicker
+    [SerializeField] private float speedIncreaseRate = 0.05f;
+
+    [Header("Safe Spawn Settings")]
+    [SerializeField] private float safeSpawnGap = 0.5f; // seconds to wait between two lane spawns
 
     private float timer;
+    private float spawnInterval;
+    private float currentSpeed;
+
+    // Static shared variable between lanes
+    private static float lastSpawnTimeTop = -999f;
+    private static float lastSpawnTimeBottom = -999f;
 
     private void Awake()
     {
@@ -24,18 +38,42 @@ public class ObstacleSpawner : MonoBehaviour
                 Debug.LogError("No ObjectPool found in the scene!");
             }
         }
+
+        spawnInterval = initialSpawnInterval;
     }
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        float deltaTime = Time.deltaTime;
+        timer += deltaTime;
 
         if (timer >= spawnInterval)
         {
-            timer = 0f;
-            SpawnObstacle();
-            IncreaseDifficulty();
+            if (CanSpawnSafely())
+            {
+                timer = 0f;
+                SpawnObstacle();
+                IncreaseDifficulty(deltaTime);
+            }
         }
+    }
+
+    private bool CanSpawnSafely()
+    {
+        float now = Time.time;
+
+        if (isTopLane)
+        {
+            if (now - lastSpawnTimeBottom < safeSpawnGap)
+                return false;
+        }
+        else
+        {
+            if (now - lastSpawnTimeTop < safeSpawnGap)
+                return false;
+        }
+
+        return true;
     }
 
     private void SpawnObstacle()
@@ -45,30 +83,37 @@ public class ObstacleSpawner : MonoBehaviour
         GameObject obj = objectPool.Get();
         if (obj == null) return;
 
-        bool spawnTop = Random.value > 0.5f;
-        obj.transform.position = spawnTop ? topLaneSpawnPoint.position : bottomLaneSpawnPoint.position;
-        obj.transform.rotation = Quaternion.identity;
+        obj.transform.position = spawnPoint.position;
 
         if (obj.TryGetComponent(out Obstacle obstacle))
         {
+            currentSpeed = Random.Range(minSpeed, maxSpeed);
             obstacle.SetPool(objectPool);
-            obstacle.speed = Random.Range(minSpeed, maxSpeed);
+            obstacle.speed = currentSpeed;
         }
 
         if (obj.TryGetComponent(out Rigidbody2D rb))
         {
-            rb.gravityScale = spawnTop ? -1f : 1f;
-            rb.velocity = new Vector2(-obstacle.speed, 0f); // Always move left with obstacle's speed
+            rb.gravityScale = isTopLane ? -1f : 1f;
+            rb.velocity = new Vector2(-currentSpeed, 0f);
         }
+
+        // Record last spawn time
+        if (isTopLane)
+            lastSpawnTimeTop = Time.time;
+        else
+            lastSpawnTimeBottom = Time.time;
     }
 
-    private void IncreaseDifficulty()
+    private void IncreaseDifficulty(float deltaTime)
     {
-        // Increase speed range slowly
-        minSpeed += speedIncreaseRate * Time.deltaTime;
-        maxSpeed += speedIncreaseRate * Time.deltaTime;
+        minSpeed += speedIncreaseRate * deltaTime;
+        maxSpeed += speedIncreaseRate * deltaTime;
+        spawnInterval = Mathf.Max(minSpawnInterval, spawnInterval - spawnIntervalDecreaseRate * deltaTime);
+    }
 
-        // Decrease spawn interval but clamp it so it never becomes too crazy fast
-        spawnInterval = Mathf.Max(minSpawnInterval, spawnInterval - spawnIntervalDecreaseRate * Time.deltaTime);
+    public float GetCurrentObstacleSpeed()
+    {
+        return currentSpeed;
     }
 }

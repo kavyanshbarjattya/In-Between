@@ -8,6 +8,7 @@ public class GameOver_Manager : MonoBehaviour
         if (collision.gameObject.CompareTag("Obstacle"))
         {
             _highscore_manager.HighScore();
+            print("Game Over");
             Time.timeScale = 0;
         }
     }
