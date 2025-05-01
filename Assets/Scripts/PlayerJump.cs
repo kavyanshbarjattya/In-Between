@@ -5,10 +5,19 @@ using UnityEngine;
 public class PlayerJump : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D _playerBody;
-    
+    public bool _isJump;
+
+    private void Start()
+    {
+        _isJump = false;
+    }
+
 
     public void Jump()
-    { 
-        _playerBody.gravityScale = -_playerBody.gravityScale;
+    {
+        if (_isJump)
+        {
+            _playerBody.gravityScale = -_playerBody.gravityScale;
+        }
     }
 }

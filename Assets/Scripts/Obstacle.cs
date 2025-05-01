@@ -19,7 +19,15 @@ public class Obstacle : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Destroyer"))
         {
-            _pool.Release(gameObject);
+            if (_pool != null)
+            {
+                _pool.Release(gameObject);
+            }
+            else
+            {
+                print("Destroy");
+                Destroy(gameObject);
+            }
         }
     }
 
