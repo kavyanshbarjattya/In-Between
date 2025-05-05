@@ -9,10 +9,16 @@ public class PlayerJump : MonoBehaviour
 
     private void Start()
     {
-        _isJump = false;
+        print(PlayerPrefs.GetInt("Jump"));
+        if (PlayerPrefs.GetInt("Jump" , 0) == 0)
+        {
+            _isJump = false;
+        }
+        else if(PlayerPrefs.GetInt("Jump") == 1)
+        {
+            _isJump = true;
+        }
     }
-
-
     public void Jump()
     {
         if (_isJump)

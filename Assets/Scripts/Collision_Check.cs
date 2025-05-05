@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class Collision_Check : MonoBehaviour
 {
-    [SerializeField] Tutorial_Manager _tutorialManager;
-
+    [SerializeField] Tutorial_Manager _tutorial_manager;
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.CompareTag("Tutorial"))
+        if(collision.gameObject.CompareTag("Player"))
         {
-            _tutorialManager.Tutorials();
+            Time.timeScale = 0;
+            _tutorial_manager.NextTutorial();
         }
     }
 }

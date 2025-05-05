@@ -11,20 +11,17 @@ public class HighScore_Manager : MonoBehaviour
 
     private void Start()
     {
-        print(PlayerPrefs.GetFloat("HighScore",0));
+        print(PlayerPrefs.GetFloat("HighScore"));
         _highscoreTxt.text = "HighScore: " + PlayerPrefs.GetFloat("HighScore", 0).ToString();
     }
     public void HighScore()
     {
-        if(_scoreManager._score > PlayerPrefs.GetFloat("HighScore"))
+        if (_scoreManager._score > PlayerPrefs.GetFloat("HighScore"))
         {
-            if (PlayerPrefs.HasKey("HighScore"))
-            {
-                _scoreManager._highScore = _scoreManager._score;
-                PlayerPrefs.SetFloat("HighScore", _scoreManager._highScore);
-                _highscoreTxt.text = "HighScore: " + PlayerPrefs.GetFloat("HighScore", 0).ToString();
-
-            }
+            _scoreManager._highScore = _scoreManager._score;
+            PlayerPrefs.SetFloat("HighScore", _scoreManager._highScore);
+            PlayerPrefs.Save();
+            _highscoreTxt.text = "HighScore: " + PlayerPrefs.GetFloat("HighScore").ToString();
         }
     }
 }

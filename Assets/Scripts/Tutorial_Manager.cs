@@ -1,44 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Tutorial_Manager : MonoBehaviour
 {
-    [SerializeField] GameObject[] _tutorials;
-    [SerializeField] PlayerJump[] _jump; 
-    int i;
-    bool _timeOff;
-    void Start()
-    {
-        for (int i = 0; i < _tutorials.Length; i++)
-        {
-            _tutorials[i].gameObject.SetActive(false);
-        }
+    [SerializeField] GameObject[] _tutorialUI;
+    [SerializeField] PlayerJump[] _playerJump;
+    [SerializeField]
+    bool _isActive;
 
-    }
-    public void Tutorials()
+    int _currentIndex = 0;
+    private void Start()
     {
-        for (i = 0; i < _tutorials.Length;)
+        foreach (GameObject g in _tutorialUI)
         {
-            _tutorials[i].gameObject.SetActive(true);
-            i++;
-            Time.timeScale = 0;
-            _timeOff = true;
-            print(i);
-
+            g.SetActive(false);
         }
     }
 
+    public void NextTutorial()
+    {
+        if (_currentIndex < _tutorialUI.Length && !_isActive)
+        {
+            _tutorialUI[_currentIndex].SetActive(true);
+            _isActive = true;
+            _currentIndex++;
+        }
+    }
 
     public void TimeReset()
     {
-        if( _timeOff)
+        Time.timeScale = 1;
+        _tutorialUI[_currentIndex - 1].SetActive(false);
+        foreach (PlayerJump pj in _playerJump)
         {
-            Time.timeScale = 1;
-            _tutorials[i - 1].gameObject.SetActive(false);
-            print(i);
-            _timeOff = false;
-            print(_timeOff);
+            if(pj != null)
+            {
+                pj.GetComponent<PlayerJump>()._isJump = true;
+                pj.GetComponent<PlayerJump>().Jump();
+                PlayerPrefs.SetInt("Jump", 1);
+                PlayerPrefs.Save();
+            }
+        }
+        _isActive = false;
+
+        if(_currentIndex >= _tutorialUI.Length)
+        {
+            StartCoroutine(Game_Manager.instance.TimerToStartGame());
+            
         }
     }
 }
