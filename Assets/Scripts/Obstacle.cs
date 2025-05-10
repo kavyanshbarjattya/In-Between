@@ -25,7 +25,6 @@ public class Obstacle : MonoBehaviour
             }
             else
             {
-                print("Destroy");
                 Destroy(gameObject);
             }
         }

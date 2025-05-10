@@ -1,16 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Game_Manager : MonoBehaviour
 {
+    public static Game_Manager instance;
+    [HideInInspector]
     public int _isTutorial;
+
     [SerializeField] GameObject _taptopStart_Canvas , _uiCanvas , _tutorial;
     [SerializeField] GameObject[] ObjectSpawns , _score;
+    [SerializeField] Volume _volume;
+    [SerializeField] AudioSource _bgMusic , _tapSound;
 
-    public static Game_Manager instance;
+    private SplitToning _splitToning;
+
 
 
     private void Awake()
@@ -23,6 +31,7 @@ public class Game_Manager : MonoBehaviour
         {
             Destroy(instance);
         }
+        _volume.profile.TryGet(out _splitToning);
     }
     void Start()
     {
@@ -62,7 +71,7 @@ public class Game_Manager : MonoBehaviour
                 s.SetActive(true);
             }
         }
-
+        
     }
 
     public void TapToPlay()
@@ -71,6 +80,7 @@ public class Game_Manager : MonoBehaviour
         {
             Time.timeScale = 1;
         }
+        _tapSound.Play();
         _taptopStart_Canvas.SetActive(false);
         _uiCanvas.SetActive(true);
     }
@@ -105,6 +115,16 @@ public class Game_Manager : MonoBehaviour
         }
         _tutorial.SetActive(false);
 
+    }
+
+    public void ScreenColor()
+    {
+        _splitToning.balance.value = 0;
+    }
+
+    public void MusicPitch()
+    {
+        _bgMusic.pitch = -0.5f;
     }
 
 }

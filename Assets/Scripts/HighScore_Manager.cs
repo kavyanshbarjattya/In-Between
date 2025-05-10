@@ -11,7 +11,6 @@ public class HighScore_Manager : MonoBehaviour
 
     private void Start()
     {
-        print(PlayerPrefs.GetFloat("HighScore"));
         _highscoreTxt.text = "HighScore: " + PlayerPrefs.GetFloat("HighScore", 0).ToString();
     }
     public void HighScore()

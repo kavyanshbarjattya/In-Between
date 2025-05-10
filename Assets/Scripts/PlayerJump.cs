@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerJump : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D _playerBody;
+    [SerializeField] AudioSource _jumpSound;
     public bool _isJump;
 
     private void Start()
@@ -24,6 +25,11 @@ public class PlayerJump : MonoBehaviour
         if (_isJump)
         {
             _playerBody.gravityScale = -_playerBody.gravityScale;
+            if(!_jumpSound.isPlaying )
+            {
+                _jumpSound.Play();
+            }
+            // ----------------Play Woosh Sound-------------------
         }
     }
 }
